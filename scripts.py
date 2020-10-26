@@ -1,47 +1,58 @@
 
 import click
 import os.path
+from os import walk
 import sys
-import pyautogui
-from pyautogui import ImageNotFoundException
-import pyscreeze
-from time import sleep
-
+import subprocess
 
 @click.group()
 def cli():
     pass
 
-
 @cli.command('copy-exif-data')
-
 @click.option('--source', '-s', help='input folder, default c:\\asource')
 @click.option('--target', '-t', help='target folder, default c:\\atarget')
 def copy_exif_data(source, target):
-    """Automatically find and select approvers in MR when >Add aproval rule< window is active """
+    """Copies exif tags from photos in source folder to target folder. Based only on names, extensions do not matter """
 
-    pyscreeze.USE_IMAGE_NOT_FOUND_EXCEPTION = True
+    exif_tool_path = os.path.join(sys.path[0], 'bin', 'exif', 'exiftool.exe')
 
-    try:
-        imageToBaseOn = os.path.join(
-            sys.path[0], 'media', 'add_screenshot_snip.png')
-        c = pyautogui.locateCenterOnScreen(imageToBaseOn)
-    except ImageNotFoundException:
-        click.echo(
-            'The snip of "Add" word in the add approval rule window not found')
-        return
+    # subprocess.run(exif_tool_path)
+    # usage: exiftool.exe -tagsFromFile" c:\asource\IMG_20201025_164020.jpg c:\atarget\IMG_20201025_164020.jpg
 
-    pyautogui.click(c)
-    pyautogui.click(c.x + 120, c.y + 90)
-    pyautogui.write(group)
+    if source == None:
+        source = 'C:\\asource'
 
-    for approver in approvers:
-        pyautogui.click(c.x + 330, c.y + 200)
-        pyautogui.write(approver)
-        sleep(0.6)
-        pyautogui.click(c.x + 330, c.y + 250)
+    if target == None:
+        target = 'C:\\atarget'
 
-    pyautogui.click(c.x + 400, c.y + 440)
+    source_photos = []
+    target_photos = []
+
+    for _, _, filenames in os.walk(source):
+        source_photos.extend(filenames)
+        break
+
+    for _, _, filenames in os.walk(target):
+        target_photos.extend(filenames)
+        break
+
+    source_photo_names = list(map(lambda x: x[:x.find('.')], source_photos))
+    target_photo_names = list(map(lambda x: x[:x.find('.')], target_photos))
+
+    target_names = {}
+
+    for tphoto in target_photos:
+        name = tphoto[:tphoto.find('.')]
+        ext = tphoto[tphoto.find('.'):]
+        target_names[name] = ext
+
+    click.echo(target_names)
+    click.echo(target_photo_names)
+    for sphoto in source_photo_names:
+        if sphoto in target_photo_names:
+            click.echo('TBD / file to change:')
+            click.echo(source + '\\' + sphoto + target_names[sphoto])
 
 
 if __name__ == '__main__':
