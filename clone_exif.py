@@ -1,15 +1,12 @@
-
 import click
 import os.path
 from os import walk
 import sys
 import subprocess
 
-
 @click.group()
 def cli():
     pass
-
 
 @cli.command('exif')
 @click.option('--source', '-s', help='input folder, default c:\\asource')
