@@ -6,11 +6,11 @@ urls = ['https://boardgamegeek.com/browse/boardgame']
 for i in range(2,5):
     urls.append('https://boardgamegeek.com/browse/boardgame/page/' + str(i))
     
+data_lines = ["Rank,Game Name,Link"]
 
 for url in urls:
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
-    print("hey")
 
     rows = soup.find_all('tr', id=lambda x: x and x.startswith('row_'))
 
@@ -22,4 +22,8 @@ for url in urls:
         game_name = game_link_tag.get_text(strip=True)
         game_link = game_link_tag['href']
         
-        print(f"{rank},{game_name},{game_link}")
+        data_lines.append(f"{rank},{game_name},{game_link}")
+
+result = '\n'.join(data_lines)
+
+print(result)
